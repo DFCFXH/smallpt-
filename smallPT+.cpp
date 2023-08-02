@@ -1,83 +1,88 @@
-ï»¿/*è·¯å¾„è¿½è¸ªçš„åŸºæœ¬æ€æƒ³æ˜¯ä»è§†ç‚¹å‘å‡ºä¸€æ¡å…‰çº¿,å…‰çº¿ä¸ç‰©ä½“è¡¨é¢ç›¸äº¤æ—¶æ ¹æ®è¡¨é¢çš„æè´¨å±æ€§ç»§ç»­é‡‡æ ·ä¸€ä¸ªæ–¹å‘,å‘å‡ºå¦ä¸€æ¡å…‰çº¿,å¦‚æ­¤
-è¿­ä»£,ç›´åˆ°å…‰çº¿æ‰“åˆ°å…‰æºä¸Š(æˆ–é€ƒé€¸å‡ºåœºæ™¯),ç„¶åç”¨è’™ç‰¹å¡æ´›çš„æ–¹æ³•,è®¡ç®—å…¶è´¡çŒ®,ä½œä¸ºåƒç´ çš„é¢œè‰²å€¼.
-è·¯å¾„è¿½è¸ªä¼šé¿å¼€è´¡çŒ®å°çš„è·¯å¾„,è€Œåœ¨è´¡çŒ®å¤§çš„è·¯å¾„é™„è¿‘åšæ›´å¤šå±€éƒ¨çš„æ¢ç´¢.
-è·¯å¾„è¿½è¸ª=å…‰çº¿è¿½è¸ª+è’™ç‰¹å¡æ´›æ–¹æ³•*/
-#define _CRT_SECURE_NO_WARNINGS//ç¦ç”¨fopençš„è­¦å‘Š
-//#define _OPENMP
-#include <math.h>//smallpt,ä¸€ä¸ªå°å‹è·¯å¾„è¿½è¸ªå™¨
+/* smallpt,Ò»¸öĞ¡ĞÍÂ·¾¶×·×ÙÆ÷ */
+
+/*
+Â·¾¶×·×ÙµÄ»ù±¾Ë¼ÏëÊÇ´ÓÊÓµã·¢³öÒ»Ìõ¹âÏß,¹âÏßÓëÎïÌå±íÃæÏà½»Ê±¸ù¾İ±íÃæµÄ²ÄÖÊÊôĞÔ¼ÌĞø²ÉÑùÒ»¸ö·½Ïò,·¢³öÁíÒ»Ìõ¹âÏß,Èç´Ë
+µü´ú,Ö±µ½¹âÏß´òµ½¹âÔ´ÉÏ(»òÌÓÒİ³ö³¡¾°),È»ºóÓÃÃÉÌØ¿¨ÂåµÄ·½·¨,¼ÆËãÆä¹±Ï×,×÷ÎªÏñËØµÄÑÕÉ«Öµ.
+Â·¾¶×·×Ù»á±Ü¿ª¹±Ï×Ğ¡µÄÂ·¾¶,¶øÔÚ¹±Ï×´óµÄÂ·¾¶¸½½ü×ö¸ü¶à¾Ö²¿µÄÌ½Ë÷.
+Â·¾¶×·×Ù=¹âÏß×·×Ù+ÃÉÌØ¿¨Âå·½·¨
+*/
+
+#define _CRT_SECURE_NO_WARNINGS //½ûÓÃfopenµÄ¾¯¸æ
+#define _USE_MATH_DEFINES 
+#include <math.h>
 #include <stdlib.h> 
 #include <stdio.h>
 #include <omp.h>
-//#define double float//ä½¿ç”¨å•ç²¾åº¦æµ®ç‚¹æ•°ä»¥èŠ‚çœå†…å­˜
 #define float2 double
-#define M_PI 3.1415926525//ä½¿ç”¨å¸¸é‡M_PIè¡¨ç¤ºåœ†å‘¨ç‡
+
 //#define IMAGE_PATHNAME "image.ppm"
-double erand48(unsigned short xsubi[3]) {//éšæœºæ•°
+double erand48(unsigned short xsubi[3]) { //Ëæ»úÊı
     return (double)rand() / (double)RAND_MAX;
 }
-struct Vec {//ä¸‰ç»´å‘é‡
-    double x, y, z;//ä½ç½®æˆ–é¢œè‰²éƒ½èƒ½ä½¿ç”¨
-    Vec(double x_ = 0, double y_ = 0, double z_ = 0) { x = x_; y = y_; z = z_; }//æ„é€ å‡½æ•°,x,y,zé»˜è®¤ä¸ºé›¶
+struct Vec { //ÈıÎ¬ÏòÁ¿
+    double x, y, z; //Î»ÖÃ»òÑÕÉ«¶¼ÄÜÊ¹ÓÃ
+    Vec(double x_ = 0, double y_ = 0, double z_ = 0) { x = x_; y = y_; z = z_; } //¹¹Ôìº¯Êı,x,y,zÄ¬ÈÏÎªÁã
     Vec operator+(const Vec& b) const { return Vec(x + b.x, y + b.y, z + b.z); }
     Vec operator-(const Vec& b) const { return Vec(x - b.x, y - b.y, z - b.z); }
-    Vec operator*(double b) const { return Vec(x * b, y * b, z * b); }//å‘é‡ä¹˜æ ‡é‡
-    Vec mult(const Vec& b) const { return Vec(x * b.x, y * b.y, z * b.z); }//å‘é‡ä¹˜å‘é‡,ç”¨äºé¢œè‰²è®¡ç®—
-    Vec& norm() { return *this = *this * (1 / sqrt(x * x + y * y + z * z)); }//å½’ä¸€åŒ–
-    double dot(const Vec& b) const { return x * b.x + y * b.y + z * b.z; }//ç‚¹ä¹˜
-    Vec operator%(Vec& b) { return Vec(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x); }//å‰ä¹˜
+    Vec operator*(double b) const { return Vec(x * b, y * b, z * b); } //ÏòÁ¿³Ë±êÁ¿
+    Vec mult(const Vec& b) const { return Vec(x * b.x, y * b.y, z * b.z); } //ÏòÁ¿³ËÏòÁ¿,ÓÃÓÚÑÕÉ«¼ÆËã
+    Vec& norm() { return *this = *this * (1 / sqrt(x * x + y * y + z * z)); } //¹éÒ»»¯
+    double dot(const Vec& b) const { return x * b.x + y * b.y + z * b.z; } //µã³Ë
+    Vec operator%(Vec& b) { return Vec(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x); }//²æ³Ë
     Vec operator/(const Vec& b) const { return Vec(x / b.x, y / b.y, z / b.z); }
-    double DIV(const double& b) const { return x /b + y / b + z / b; }//å‘é‡é™¤ä»¥æ ‡é‡
+    double DIV(const double& b) const { return x /b + y / b + z / b;  }//ÏòÁ¿³ıÒÔ±êÁ¿
 };
-struct Ray { Vec o, d; Ray(Vec o_, Vec d_) : o(o_), d(d_) {} };//å…‰çº¿ç»“æ„ä½“
-enum obj_type { S, P, T,BVH };//æè´¨ç±»å‹
+struct Ray { Vec o, d; Ray(Vec o_, Vec d_) : o(o_), d(d_) {} }; //¹âÏß½á¹¹Ìå
+enum obj_type { S, P, T,BVH }; //²ÄÖÊÀàĞÍ
 struct Obj {
-    double rad, ref, diff, spec, refr, refr_nt,w,h,size;//åŠå¾„,åå°„,æ¼«åå°„,é•œé¢åå°„,æŠ˜å°„æ¦‚ç‡,æŠ˜å°„ç‡,å®½,é«˜
-    Vec p, e, c, i, n,p1,p2,p3;//ä½ç½®,è‡ªå‘å…‰,é¢œè‰²(è¿™é‡Œçš„é¢œè‰²å¹¶ä¸æ˜¯0-255,è€Œæ˜¯0-1),æ‚è´¨,æ³•çº¿
-    obj_type type;// ç‰©ä½“ç±»å‹
+    double rad, ref, diff, spec, refr, refr_nt,w,h,size; //°ë¾¶,·´Éä,Âş·´Éä,¾µÃæ·´Éä,ÕÛÉä¸ÅÂÊ,ÕÛÉäÂÊ,¿í,¸ß
+    Vec p, e, c, i, n,p1,p2,p3; //Î»ÖÃ,×Ô·¢¹â,ÑÕÉ«(ÕâÀïµÄÑÕÉ«²¢²»ÊÇ0-255,¶øÊÇ0-1),ÔÓÖÊ,·¨Ïß
+    obj_type type; // ÎïÌåÀàĞÍ
     Obj(double rad_, double ref_, double diff_, double spec_, double refr_, double refr_nt_,Vec i_,Vec p_, Vec e_, Vec c_,
-        obj_type refl_,double w_,double h_,Vec n_,double size_,Vec p1_,Vec p2_,Vec p3_) ://æ„é€ å‡½æ•°
+        obj_type refl_,double w_,double h_,Vec n_,double size_,Vec p1_,Vec p2_,Vec p3_) ://¹¹Ôìº¯Êı
         rad(rad_), ref(ref_), diff(diff_), spec(spec_), refr(refr_), refr_nt(refr_nt_),i(i_), p(p_), e(e_), c(c_), type(refl_),w(w_),h(h_),n(n_)
     ,size(size_),p1(p1_), p2(p2_), p3(p3_) {}
-    double intersect_sphere(const Ray& r) const { //è®¡ç®—å°„çº¿åŸç‚¹ä¸çƒä½“ä¹‹é—´çš„äº¤ç‚¹çš„è·ç¦»,å¦‚æœæ²¡æœ‰äº¤ç‚¹è¿”å›0
-        Vec op = p - r.o; //å…‰æºæŒ‡å‘çƒå¿ƒçš„ä¸€æ¡å‘é‡
+    double intersect_sphere(const Ray& r) const { //¼ÆËãÉäÏßÔ­µãÓëÇòÌåÖ®¼äµÄ½»µãµÄ¾àÀë,Èç¹ûÃ»ÓĞ½»µã·µ»Ø0
+        Vec op = p - r.o; //¹âÔ´Ö¸ÏòÇòĞÄµÄÒ»ÌõÏòÁ¿
         double t, eps = 1e-4, b = op.dot(r.d), det = b * b - op.dot(op) + rad * rad;
-        //epsæ˜¯ä¸€ä¸ªå¾ˆå°çš„é‡,ä»£æŒ‡0
-        //tæ˜¯å°„çº¿ä¸äº¤ç‚¹ä¹‹é—´çš„è·ç¦»,æ˜¯æ–¹ç¨‹t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0çš„è§£"."è¡¨ç¤ºç‚¹ä¹˜
-        //bæ˜¯å…‰æºæŒ‡å‘çƒå¿ƒçš„å‘é‡å’Œå…‰æºæ–¹å‘å‘é‡çš„å¤¹è§’çš„ä½™å¼¦å€¼
-        //detæ²¡æœ‰è§£(<0)åˆ™æ²¡æœ‰ç›¸äº¤^^^|op-t|=|r|         (op-t)^2-r^2=0
+        //epsÊÇÒ»¸öºÜĞ¡µÄÁ¿,´úÖ¸0
+        //tÊÇÉäÏßÓë½»µãÖ®¼äµÄ¾àÀë,ÊÇ·½³Ìt^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0µÄ½â"."±íÊ¾µã³Ë
+        //bÊÇ¹âÔ´Ö¸ÏòÇòĞÄµÄÏòÁ¿ºÍ¹âÔ´·½ÏòÏòÁ¿µÄ¼Ğ½ÇµÄÓàÏÒÖµ
+        //detÃ»ÓĞ½â(<0)ÔòÃ»ÓĞÏà½»^^^|op-t|=|r|         (op-t)^2-r^2=0
         if (det < 0) return 0; else det = sqrt(det);
         return (t = b - det) > eps ? t : ((t = b + det) > eps ? t : 0);
-        //è¿”å›tå€¼,å¦‚æœä¸º0,åˆ™è¡¨ç¤ºä¸ç›¸äº¤
-        //é€‰æ‹©å…¶ä¸­è¾ƒå°ä¸”å¤§äº0çš„è§£,å¦‚æœdet<0åˆ™æ— è§£,è¡¨ç¤ºä¸ç›¸äº¤,è¿”å›0
+        //·µ»ØtÖµ,Èç¹ûÎª0,Ôò±íÊ¾²»Ïà½»
+        //Ñ¡ÔñÆäÖĞ½ÏĞ¡ÇÒ´óÓÚ0µÄ½â,Èç¹ûdet<0ÔòÎŞ½â,±íÊ¾²»Ïà½»,·µ»Ø0
     };
     double intersect_plane(const Ray& r) const {
         double t = n.dot(p - r.o) / n.dot(r.d);
         double dn = n.dot(r.d);
 
-        // å¦‚æœå…‰çº¿å¹³è¡Œäºæˆ–ä½äºå¹³é¢åé¢ï¼Œåˆ™æ²¡æœ‰ç›¸äº¤
+        //Èç¹û¹âÏßÆ½ĞĞÓÚ»òÎ»ÓÚÆ½ÃæºóÃæ£¬ÔòÃ»ÓĞÏà½»
         if (fabs(dn) < 1e-6 || dn >= 0) {
             return 0;
         }
 
-        // äº¤ç‚¹
+        //½»µã
         Vec intersection = r.o + r.d * t;
 
-        // æ£€æŸ¥äº¤ç‚¹æ˜¯å¦åœ¨å¹³é¢èŒƒå›´å†…
+        //¼ì²é½»µãÊÇ·ñÔÚÆ½Ãæ·¶Î§ÄÚ
         double half_width = w / 2.0;
         double half_height = h / 2.0;
-        double z_distance = intersection.z - p.z; // è®¡ç®—äº¤ç‚¹åˆ°å¹³é¢ä¸­å¿ƒçš„Zè½´è·ç¦»
+        double z_distance = intersection.z - p.z; //¼ÆËã½»µãµ½Æ½ÃæÖĞĞÄµÄZÖá¾àÀë
 
         if (intersection.x < p.x - half_width || intersection.x > p.x + half_width ||
             intersection.y < p.y - half_height || intersection.y > p.y + half_height ||
-            z_distance < 0 || z_distance > h) { // æ£€æŸ¥äº¤ç‚¹åœ¨Zè½´æ–¹å‘ä¸Šæ˜¯å¦åœ¨èŒƒå›´å†…
+            z_distance < 0 || z_distance > h) { //¼ì²é½»µãÔÚZÖá·½ÏòÉÏÊÇ·ñÔÚ·¶Î§ÄÚ
             return 0;
         }
 
-        // è¿”å›ç›¸äº¤ç‚¹ä¸å…‰çº¿åŸç‚¹ä¹‹é—´çš„è·ç¦»
+        //·µ»ØÏà½»µãÓë¹âÏßÔ­µãÖ®¼äµÄ¾àÀë
         return t;
     };
-    double intersect_triangle(const Ray& r) const { //è®¡ç®—å°„çº¿åŸç‚¹ä¸çƒä½“ä¹‹é—´çš„äº¤ç‚¹çš„è·ç¦»,å¦‚æœæ²¡æœ‰äº¤ç‚¹è¿”å›0
-        /*Vec p2_ = p2 - p1;
+    double intersect_triangle(const Ray& r) const { //¼ÆËãÉäÏßÔ­µãÓëÇòÌåÖ®¼äµÄ½»µãµÄ¾àÀë,Èç¹ûÃ»ÓĞ½»µã·µ»Ø0
+        /*
+		Vec p2_ = p2 - p1;
         Vec p3_ = p3 - p1;
         Vec p1 = p;
         Vec p2 = p1 + p2_;
@@ -99,8 +104,9 @@ struct Obj {
         b = P - p3;
         Vec c3 = a % b;
         if (c1.dot(n) < 0 || c2.dot(n) < 0 || c3.dot(n) < 0) return 0;
-        return t;*/
-        const double EPSILON = 0.0000001; //è¦æ¯”è¾ƒçš„å°å€¼
+        return t;
+		*/
+        const double EPSILON = 0.0000001; //Òª±È½ÏµÄĞ¡Öµ
         Vec p1_ = p1 * size + p;
         Vec p2_ = p2 * size + p;
         Vec p3_ = p3 * size + p;
@@ -116,86 +122,86 @@ struct Obj {
         Vec n = n0.norm();
         double tdn = n.dot(r.d);
         if (a > -EPSILON && a < EPSILON || tdn >= 0)
-            return 0.0; //å°„çº¿å¹³è¡Œäºä¸‰è§’å½¢
+            return 0.0; //ÉäÏßÆ½ĞĞÓÚÈı½ÇĞÎ
 
         double f = 1.0 / a;
         Vec s = r.o - p1;
         double u = f * s.dot(h);
 
         if (u < 0.0 || u > 1.0)
-            return 0.0; //äº¤ç‚¹åœ¨ä¸‰è§’å½¢ä¹‹å¤–
+            return 0.0; //½»µãÔÚÈı½ÇĞÎÖ®Íâ
 
         Vec q = s % edge1;
         double v = f * r.d.dot(q);
 
         if (v < 0.0 || u + v > 1.0)
-            return 0.0; //äº¤ç‚¹åœ¨ä¸‰è§’å½¢ä¹‹å¤–
+            return 0.0; //½»µãÔÚÈı½ÇĞÎÖ®Íâ
 
         double t = f * edge2.dot(q);
 
         if (t > EPSILON)
-            return t; //æ‰¾åˆ°äº¤ç‚¹
+            return t; //ÕÒµ½½»µã
 
-        return 0.0; //æœªæ‰¾åˆ°äº¤ç‚¹
+        return 0.0; //Î´ÕÒµ½½»µã
     };
 };
-/*åŠå¾„,åå°„æ¦‚ç‡,æ¼«åå°„æ¦‚ç‡,é•œé¢åå°„æ¦‚ç‡,æŠ˜å°„æ¦‚ç‡,æŠ˜å°„ç‡,æ‚è´¨,ä½ç½®,è‡ªå‘å…‰,é¢œè‰²,ç±»å‹,
-å®½,é«˜,æ³•çº¿,å¤§å°,ä¸‰ç‚¹ä½ç½®*/
+/*
+°ë¾¶,·´Éä¸ÅÂÊ,Âş·´Éä¸ÅÂÊ,¾µÃæ·´Éä¸ÅÂÊ,ÕÛÉä¸ÅÂÊ,ÕÛÉäÂÊ,ÔÓÖÊ,Î»ÖÃ,×Ô·¢¹â,ÑÕÉ«,ÀàĞÍ,¸ß,·¨Ïß,´óĞ¡,ÈıµãÎ»ÖÃ
+*/
 Obj scenes[] = {
       Obj(1e5,100,50,0,50,1.5,Vec(), Vec(1e5 + 1,40.8,81.6), Vec(),Vec(.75,.25,.25),S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//å·¦å¢™
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //×óÇ½
   Obj(1e5, 100,10,900,0,0,Vec(),Vec(-1e5 + 99,40.8,81.6),Vec(),Vec(.25,.25,.75),S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//å³å¢™
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //ÓÒÇ½
   Obj(1e5,100,100,0,0,0, Vec(),Vec(50,40.8, 1e5),     Vec(),Vec(.75,.75,.75),S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//åå¢™
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //ºóÇ½
   Obj(1e5,100,100,0,0,0, Vec(),Vec(50,40.8,-1e5 + 170), Vec(.45,.45,.45),Vec(), S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//å‰å¢™
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //Ç°Ç½
   Obj(1e5, 100,0,100,0,0,Vec(),Vec(50, 1e5, 81.6),    Vec(),Vec(.75,.75,.75),S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//åœ°æ¿
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //µØ°å
   Obj(1e5,100,100,0,0,1.5, Vec(),Vec(50,-1e5 + 81.6,81.6),Vec(),Vec(.75,.75,.75),S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//å¤©èŠ±æ¿
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //Ìì»¨°å
   Obj(16.5,100,0,100,0,0,Vec(),Vec(27,16.5,47),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//é•œé¢
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //¾µÃæ
   Obj(16.5,100,16,0,84,1.5,Vec(),Vec(73,16.5,78),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//ç²—ç³™ç»ç’ƒ
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //´Ö²Ú²£Á§
   Obj(600,100,100,0,0,0, Vec(),Vec(50,81.6 - .27,81.6),Vec(12,12,12),  Vec(), P,
   30,30,Vec(0,-1,0)
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //è‡ªå‘å…‰
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //×Ô·¢¹â
   Obj(15,100,100,0,0,1.5,Vec(),Vec(50,50,81.6),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//æ¼«åå°„
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //Âş·´Éä
   Obj(10,100,0,0,100,1.5,Vec(.1,.1,.1),Vec(50,10,81.6),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//æ‚è´¨
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //ÔÓÖÊ
   Obj(10,100,0,100,0,1.5,Vec(),Vec(50,30,43),       Vec(),Vec(1,1,1) * .999, P,
   20,20,Vec(0,0,1)
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//å¹³é¢
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //Æ½Ãæ
   Obj(13,100,0,10,90,1.5,Vec(),Vec(20,45,81.6),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//åå…‰ç»ç’ƒçƒ
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //·´¹â²£Á§Çò
   Obj(13,100,0,0,100,1.5,Vec(),Vec(80,47,81.6),       Vec(),Vec(1,1,1) * .999, S,
   0,0,Vec()
-  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)),//çº¯ç»ç’ƒ
+  ,1,Vec(1,1,1),Vec(2,2,2),Vec(3,3,3)), //´¿²£Á§
   Obj(16.5,100,0,0,100,3,Vec(.1,.1,.1),Vec(25,15,25),Vec(),Vec(1,1,1) * .999, T,
   0,0,Vec()
-  ,1,Vec(0,-20,50),Vec(40,20,50),Vec(-40,20,50)),//ä¸‰è§’å½¢
+  ,1,Vec(0,-20,50),Vec(40,20,50),Vec(-40,20,50)), //Èı½ÇĞÎ
 };
-//è¿™ä¸¤ä¸ªå‡½æ•°æ˜¯äº®åº¦å’Œé¢œè‰²è®¡ç®—çš„è¾…åŠ©å‡½æ•°
-inline double clamp(double x) { return x < 0 ? 0 : x>1 ? 1 : x; }//å¯¹äºç»è¿‡é€’å½’å åŠ åå¤§äº1çš„è®¾ä¸º1,å°äº0çš„è®¾ä¸º0
-inline int toInt(double x) { return int(pow(clamp(x), 1 / 2.2) * 255 + .5); }/*æŠŠ0 - 1è½¬æ¢ä¸ºrgbä¸­çš„0 - 255, è®¾ç½®äº†å„1 / 2.2çš„è°ƒæ•´å€¼,
-èƒ½è®©ç”»é¢æ›´äº®*/
-//å…‰çº¿æ±‚äº¤
-inline bool intersect(const Ray& r, double& t, int& id) {//tè¡¨ç¤ºè·ç¦»
+//ÕâÁ½¸öº¯ÊıÊÇÁÁ¶ÈºÍÑÕÉ«¼ÆËãµÄ¸¨Öúº¯Êı
+inline double clamp(double x) { return x < 0 ? 0 : x>1 ? 1 : x; } //¶ÔÓÚ¾­¹ıµİ¹éµş¼Óºó´óÓÚ1µÄÉèÎª1,Ğ¡ÓÚ0µÄÉèÎª0
+inline int toInt(double x) { return int(pow(clamp(x), 1 / 2.2) * 255 + .5); } // °Ñ0 - 1×ª»»ÎªrgbÖĞµÄ0 - 255, ÉèÖÃÁË¸÷1 / 2.2µÄµ÷ÕûÖµ,ÈÃ»­Ãæ¸üÁÁ
+//¹âÏßÇó½»
+inline bool intersect(const Ray& r, double& t, int& id) { //t±íÊ¾¾àÀë
     double n = sizeof(scenes) / sizeof(Obj), d, inf = t = 1e20;
-    for (int i = int(n); i--;) {//æ±‚å‡ºæœ€è¿‘äº¤ç‚¹
+    for (int i = int(n); i--;) { //Çó³ö×î½ü½»µã
         if (scenes[i].type == S) {
             if ((d = scenes[i].intersect_sphere(r)) && d < t) {
                 t = d;
@@ -215,15 +221,15 @@ inline bool intersect(const Ray& r, double& t, int& id) {//tè¡¨ç¤ºè·ç¦»
             }
         }
     }
-    return t < inf;//æ£€æŸ¥tæ˜¯å¦è¿‡å¤§,å¦‚æœtè¿‡å¤§åˆ™æ²¡æœ‰ç›¸äº¤,è¿”å›false,å¦åˆ™è¿”å›true
+    return t < inf; //¼ì²étÊÇ·ñ¹ı´ó,Èç¹ût¹ı´óÔòÃ»ÓĞÏà½»,·µ»Øfalse,·ñÔò·µ»Øtrue
 }
-extern double ncg = 1;//ç©ºæ°”æŠ˜å°„ç‡
+double ncg = 1; //¿ÕÆøÕÛÉäÂÊ
 int numSpheres = sizeof(scenes) / sizeof(Obj);
 Vec radiance(const Ray& r, int depth, unsigned short* Xi,int E=1) {
-    double t;// ç›¸äº¤è·ç¦»
-    int id = 0;// ç›¸äº¤å¯¹è±¡çš„ID
-    if (!intersect(r, t, id)) return Vec(); // æœªç›¸äº¤åˆ™è¿”å›é»‘è‰²
-    const Obj& obj = scenes[id];//è¢«å‡»ä¸­çš„å¯¹è±¡
+    double t; // Ïà½»¾àÀë
+    int id = 0; // Ïà½»¶ÔÏóµÄID
+    if (!intersect(r, t, id)) return Vec(); // Î´Ïà½»Ôò·µ»ØºÚÉ«
+    const Obj& obj = scenes[id]; //±»»÷ÖĞµÄ¶ÔÏó
     Vec x = r.o + r.d * t,  f = obj.c;
     Vec n,pn=obj.n;
     Vec AB = obj.p2 - obj.p1, AC = obj.p3 - obj.p1, n0_t = AB % AC;
@@ -240,30 +246,30 @@ Vec radiance(const Ray& r, int depth, unsigned short* Xi,int E=1) {
     int fanshe = rand() % 100;
     int fanshe2 = rand() % 100;
     int zheshe = rand() % 100;
-    /*xä¸ºäº¤ç‚¹,nä¸ºçƒä½“æ³•å‘é‡,nlç”¨äºä¿®æ­£æ³•å‘é‡,å¦‚æœçƒä½“æ³•å‘é‡å’Œå…‰çº¿æ–¹å‘å‘é‡çš„ç‚¹ç§¯å°äºé›¶,åˆ™æ³•çº¿å˜ä¸ºç›¸åæ–¹å‘
-    (æ­¤æ—¶å…‰çº¿ä»å†…éƒ¨å‘å‡º),(ä»å¤–éƒ¨æ¥çš„å…‰çº¿,æ³•çº¿å‘å¤–;ä»å†…éƒ¨æ¥çš„å…‰çº¿,æ³•çº¿å‘å†…),fä¸ºçƒä½“é¢œè‰²*/
-    if (depth > 6) return Vec();//å½“é€’å½’æ·±åº¦å¤§äº6,è¿”å›é»‘è‰²
-    double p = f.x > f.y && f.x > f.z ? f.x : f.y > f.z ? f.y : f.z; /*è·å–RGBä¸‰ä¸ªå€¼é‡Œçš„æœ€é«˜å€¼*/
-    if (++depth > 5) {//é€’å½’è¾¾åˆ°5æ—¶æœ‰æœºä¼šè¿”å›
+    /*xÎª½»µã,nÎªÇòÌå·¨ÏòÁ¿,nlÓÃÓÚĞŞÕı·¨ÏòÁ¿,Èç¹ûÇòÌå·¨ÏòÁ¿ºÍ¹âÏß·½ÏòÏòÁ¿µÄµã»ıĞ¡ÓÚÁã,Ôò·¨Ïß±äÎªÏà·´·½Ïò
+    (´ËÊ±¹âÏß´ÓÄÚ²¿·¢³ö),(´ÓÍâ²¿À´µÄ¹âÏß,·¨ÏßÏòÍâ;´ÓÄÚ²¿À´µÄ¹âÏß,·¨ÏßÏòÄÚ),fÎªÇòÌåÑÕÉ«*/
+    if (depth > 6) return Vec(); //µ±µİ¹éÉî¶È´óÓÚ6,·µ»ØºÚÉ«
+    double p = f.x > f.y && f.x > f.z ? f.x : f.y > f.z ? f.y : f.z; /*»ñÈ¡RGBÈı¸öÖµÀïµÄ×î¸ßÖµ*/
+    if (++depth > 5) { //µİ¹é´ïµ½5Ê±ÓĞ»ú»á·µ»Ø
         if (erand48(Xi) < p)
             f = f * (1 / p);
         else
             return obj.e;
     }
     if (fanshe <= obj.ref) {
-        if (obj.diff >= fanshe2) {// æ¼«åå°„(åœ¨åŠçƒå½“ä¸­éšå³æ‰¾ä¸€ä¸ªæ–¹å‘,ç„¶åè¿›è¡Œé€’å½’)
+        if (obj.diff >= fanshe2) { // Âş·´Éä(ÔÚ°ëÇòµ±ÖĞËæ¼´ÕÒÒ»¸ö·½Ïò,È»ºó½øĞĞµİ¹é)
             double r1 = 2 * M_PI * erand48(Xi), r2 = erand48(Xi), r2s = sqrt(r2);
-            //r1ä¸ºéšæœºé€‰å–çš„è§’åº¦,èŒƒå›´æ˜¯ 0 åˆ° 2Ï€ ä¹‹é—´,r2æ˜¯éšæœºé€‰æ‹©äº†ä¸€ä¸ªè·ç¦»(0-1),r2sæ˜¯è·ç¦»å¼€æ–¹çš„ç»“æœ
+            //r1ÎªËæ»úÑ¡È¡µÄ½Ç¶È,·¶Î§ÊÇ 0 µ½ 2¦Ğ Ö®¼ä,r2ÊÇËæ»úÑ¡ÔñÁËÒ»¸ö¾àÀë(0-1),r2sÊÇ¾àÀë¿ª·½µÄ½á¹û
             Vec w = nl, u = ((fabs(w.x) > .1 ? Vec(0, 1, 0) : Vec(1, 0, 0)) % w).norm(), v = w % u;
-            //fabs()æ±‚æµ®ç‚¹æ•°ç»å¯¹å€¼
-            /*æ ¹æ®æ³•çº¿æ„é€ äº†ä¸€ä¸ªæ­£äº¤åŸº, wä¸æ³•çº¿åŒå‘(åœ¨nç»´ç©ºé—´å½“ä¸­,ç”±nä¸ªäº’ç›¸æ­£äº¤(å‚ç›´)çš„å‘é‡ç»„æˆä¸€ä¸ªæ­£äº¤åŸº)
-            åœ¨w.xçš„ç»å¯¹å€¼>0.1çš„æ—¶å€™,uå‚ç›´äº(0,1,0)å’Œwçš„å•ä½å‘é‡,å¦åˆ™æ˜¯å‚ç›´äº(1,0,0)å’Œwçš„å•ä½å‘é‡
-            è¿™æ ·åšçš„ç›®çš„æ˜¯å½“w.xç­‰äºæˆ–æ¥è¿‘0æ—¶,å¯èƒ½ä¼šå‡ºç°çº¿æ€§ç›¸å…³çš„æƒ…å†µ*/
-            Vec d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).norm();//åå°„å…‰æ–¹å‘å‘é‡
+            //fabs()Çó¸¡µãÊı¾ø¶ÔÖµ
+            /*¸ù¾İ·¨Ïß¹¹ÔìÁËÒ»¸öÕı½»»ù, wÓë·¨ÏßÍ¬Ïò(ÔÚnÎ¬¿Õ¼äµ±ÖĞ,ÓÉn¸ö»¥ÏàÕı½»(´¹Ö±)µÄÏòÁ¿×é³ÉÒ»¸öÕı½»»ù)
+            ÔÚw.xµÄ¾ø¶ÔÖµ>0.1µÄÊ±ºò,u´¹Ö±ÓÚ(0,1,0)ºÍwµÄµ¥Î»ÏòÁ¿,·ñÔòÊÇ´¹Ö±ÓÚ(1,0,0)ºÍwµÄµ¥Î»ÏòÁ¿
+            ÕâÑù×öµÄÄ¿µÄÊÇµ±w.xµÈÓÚ»ò½Ó½ü0Ê±,¿ÉÄÜ»á³öÏÖÏßĞÔÏà¹ØµÄÇé¿ö*/
+            Vec d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).norm();//·´Éä¹â·½ÏòÏòÁ¿
             return obj.e + f.mult(radiance(Ray(x, d), depth, Xi));
-        }/*å…¨å±€å…‰ç…§æ–¹ç¨‹,ä½¿ç”¨è’™ç‰¹å¡ç½—æ–¹æ³•æ±‚è§£*/
-        /*é•œé¢åå°„,
-         å…¬å¼ä¸º å…¥å°„å…‰çº¿æ–¹å‘å‘é‡-2*æ³•å‘é‡*å…¥å°„å…‰æ–¹å‘å‘é‡dotæ³•å‘é‡=åå°„å…‰çº¿æ–¹å‘å‘é‡*/
+        }/*È«¾Ö¹âÕÕ·½³Ì,Ê¹ÓÃÃÉÌØ¿¨ÂŞ·½·¨Çó½â*/
+        /*¾µÃæ·´Éä,
+         ¹«Ê½Îª ÈëÉä¹âÏß·½ÏòÏòÁ¿-2*·¨ÏòÁ¿*ÈëÉä¹â·½ÏòÏòÁ¿dot·¨ÏòÁ¿=·´Éä¹âÏß·½ÏòÏòÁ¿*/
         else if (obj.spec >= fanshe2) {
             Vec spec_t= r.d - n * 2 * n.dot(r.d);
             if (obj.type == S) {
@@ -273,18 +279,18 @@ Vec radiance(const Ray& r, int depth, unsigned short* Xi,int E=1) {
                 return obj.e + f.mult(radiance(Ray(x, spec_t), depth, Xi));
             }
         }
-        //ä»¥ä¸‹ä¸ºæŠ˜å°„
-        Ray reflRay(x, r.d - n * 2 * n.dot(r.d));// åå°„å…‰çº¿
-        bool into = n.dot(nl) > 0; /* å…¥å°„çš„å…‰çº¿æ˜¯å¦ä»å¤–é¢è¿›æ¥?å¦‚æœnå’ŒnlåŒå‘åˆ™å…‰çº¿ä»å¤–è¾¹è¿›æ¥,å¦åˆ™å…‰çº¿ä»å†…éƒ¨å‘å‡º*/
-        double nc = ncg, nt = obj.refr_nt, nnt = into ? nc / nt : nt / nc, ddn = r.d.dot(nl), cos2t;/*ncä¸ºç©ºæ°”çš„æŠ˜å°„ç‡,ntä¸ºç»ç’ƒçš„æŠ˜å°„
-        ç‡,nntæ˜¯åŸä»‹è´¨å’Œç›®æ ‡ä»‹è´¨çš„æ¯”å€¼,ddnæ˜¯å…‰çº¿æ–¹å‘å‘é‡å’Œæ³•çº¿nlçš„å¤¹è§’ä½™å¼¦å€¼,cos2tæ˜¯cos(t)^2*/
+        //ÒÔÏÂÎªÕÛÉä
+        Ray reflRay(x, r.d - n * 2 * n.dot(r.d));// ·´Éä¹âÏß
+        bool into = n.dot(nl) > 0; /* ÈëÉäµÄ¹âÏßÊÇ·ñ´ÓÍâÃæ½øÀ´?Èç¹ûnºÍnlÍ¬ÏòÔò¹âÏß´ÓÍâ±ß½øÀ´,·ñÔò¹âÏß´ÓÄÚ²¿·¢³ö*/
+        double nc = ncg, nt = obj.refr_nt, nnt = into ? nc / nt : nt / nc, ddn = r.d.dot(nl), cos2t;/*ncÎª¿ÕÆøµÄÕÛÉäÂÊ,ntÎª²£Á§µÄÕÛÉä
+        ÂÊ,nntÊÇÔ­½éÖÊºÍÄ¿±ê½éÖÊµÄ±ÈÖµ,ddnÊÇ¹âÏß·½ÏòÏòÁ¿ºÍ·¨ÏßnlµÄ¼Ğ½ÇÓàÏÒÖµ,cos2tÊÇcos(t)^2*/
         double r1 = 2 * M_PI * erand48(Xi), r2 = erand48(Xi), r2s = sqrt(r2);
         Vec w = nl, u = ((fabs(w.x) > .1 ? Vec(0, 1, 0) : Vec(1, 0, 0)) % w).norm(), v = w % u;
         Vec d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).norm();
-        if ((cos2t = 1 - nnt * nnt * (1 - ddn * ddn)) < 0)    /*å…¨åå°„,å½“å…‰çº¿ä»è¾ƒé«˜ æŠ˜å°„ç‡ çš„ ä»‹è´¨ è¿›å…¥åˆ°è¾ƒä½æŠ˜å°„ç‡çš„ä»‹è´¨
-            æ—¶,å¦‚æœå…¥å°„è§’å¤§äºæŸä¸€ä¸´ç•Œè§’Î¸c(å…‰çº¿è¿œç¦» æ³•çº¿ )æ—¶,æŠ˜å°„è§’å°†å˜å¾—è¶³å¤Ÿå¤§,æŠ˜å°„åçš„å…‰çº¿å°†ä¸ä¼šç¦»å¼€ä»‹è´¨*/
+        if ((cos2t = 1 - nnt * nnt * (1 - ddn * ddn)) < 0)    /*È«·´Éä,µ±¹âÏß´Ó½Ï¸ß ÕÛÉäÂÊ µÄ ½éÖÊ ½øÈëµ½½ÏµÍÕÛÉäÂÊµÄ½éÖÊ
+            Ê±,Èç¹ûÈëÉä½Ç´óÓÚÄ³Ò»ÁÙ½ç½Ç¦Èc(¹âÏßÔ¶Àë ·¨Ïß )Ê±,ÕÛÉä½Ç½«±äµÃ×ã¹»´ó,ÕÛÉäºóµÄ¹âÏß½«²»»áÀë¿ª½éÖÊ*/
             return obj.e + f.mult(radiance(reflRay, depth, Xi));
-        Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).norm();//æŠ˜å°„å…‰çº¿çš„æ–¹å‘
+        Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).norm();//ÕÛÉä¹âÏßµÄ·½Ïò
         return obj.refr >= fanshe2 ? obj.e + f.mult(radiance(Ray(x, tdir), depth, Xi))+obj.i  :zheshe<=50?
             obj.e+radiance(reflRay, depth, Xi)* (obj.spec)*0.9 : obj.e + f.mult(radiance(Ray(x, d), depth, Xi)) * (obj.diff)*0.9;
     }
@@ -298,7 +304,7 @@ Vec DeNoisy(int x, int y, int i, int w, int h, int samps, Vec c[], int i1=0) {
     double p = c[i].x > c[i].y && c[i].x > c[i].z ? c[i].x : c[i].y > c[i].z ? c[i].y : c[i].z;
     double a = 0;
     for (int j = 1; j <= i1; j++) {
-        if (c[i].x <= jz && c[i].y <= jz && c[i].z <= jz && x > 0 && y > 0 && samps <= 100) {//é™å™ª
+        if (c[i].x <= jz && c[i].y <= jz && c[i].z <= jz && x > 0 && y > 0 && samps <= 100) {//½µÔë
             if (y > 0 + j && i - w - j <= w * h && i - w - j >= 0 && !(&(c[i - w - j]) == nullptr)) {
                 yansehuancun = yansehuancun + c[i - w - j];
                 a++;
@@ -325,7 +331,7 @@ Vec DeNoisy2(int x, int y, int i, int w, int h, int samps, Vec c[], int i1=0) {
     double p = c[i].x > c[i].y && c[i].x > c[i].z ? c[i].x : c[i].y > c[i].z ? c[i].y : c[i].z;
     double a = 0;
     for (int j = 1; j <= i1; j++) {
-        if (c[i].x <= jz && c[i].y <= jz && c[i].z <= jz && x > 0 && y > 0 && samps <= 64) {//é™å™ª
+        if (c[i].x <= jz && c[i].y <= jz && c[i].z <= jz && x > 0 && y > 0 && samps <= 64) {//½µÔë
             if (y > 0 + j + 1 && i - w - j - 1 <= w * h && i - w - j >= 0 && !(&(c[i - w - j]) == nullptr)) {
                 yansehuancun = yansehuancun + c[i - w - j - 1];
                 a++;
@@ -356,45 +362,49 @@ bool js( Vec a,Vec b) {
     }
 }
 int main(int argc, char* argv[]) {
-    omp_set_num_threads(36);
-    int w = 1024 / 2, h = 768 / 2, samps = argc == 2 ? atoi(argv[1]) / 4 : 100, samps2=samps;//å›¾åƒå¤§å°åŠé‡‡æ ·æ¬¡æ•°
-    Ray cam(Vec(50, 52, 295.6), Vec(0, -0.042612, -1).norm()); // æ‘„åƒæœºä½ç½®å’Œæ–¹å‘
-    /*cxè¡¨ç¤ºæ¯æ¬¡æ¨ªå‘ç§»åŠ¨æ—¶ç§»åŠ¨å¤šå°‘,cyè¡¨ç¤ºå¾€ä¸‹ç§»åŠ¨æ—¶ç§»åŠ¨å¤šå°‘,rä¸ºæ¯æ¬¡é‡‡æ ·æ—¶è®°å½•çš„ç»“æœ,cæ˜¯ç”¨æ¥è®¡ç®—æœ€ç»ˆå›¾åƒçš„æ•°ç»„(â†“)*/
+    //omp_set_num_threads(36);
+    int w = 1024 / 2, h = 768 / 2, samps = argc == 2 ? atoi(argv[1]) / 4 : 100, samps2=samps; //Í¼Ïñ´óĞ¡¼°²ÉÑù´ÎÊı
+    Ray cam(Vec(50, 52, 295.6), Vec(0, -0.042612, -1).norm()); //ÉãÏñ»úÎ»ÖÃºÍ·½Ïò
+    /*cx±íÊ¾Ã¿´ÎºáÏòÒÆ¶¯Ê±ÒÆ¶¯¶àÉÙ,cy±íÊ¾ÍùÏÂÒÆ¶¯Ê±ÒÆ¶¯¶àÉÙ,rÎªÃ¿´Î²ÉÑùÊ±¼ÇÂ¼µÄ½á¹û,cÊÇÓÃÀ´¼ÆËã×îÖÕÍ¼ÏñµÄÊı×é(¡ı)*/
     Vec cx = Vec(w * .5135 / h), cy = (cx % cam.d).norm() * .5135, r, * c = new Vec[w * h];
-#pragma omp parallel for schedule(dynamic, 1) private(r)//å¤šçº¿ç¨‹
-    for (int y = 0; y < h; y++) {// å¾ªç¯éå†å›¾åƒçš„æ¯ä¸€è¡Œ
-        fprintf(stderr, "\ræ¸²æŸ“ä¸­... %5.2f%%", 100. * y / (h - 1));//è¾“å‡ºè¿›åº¦
+	#pragma omp parallel for schedule(dynamic, 1) private(r) //¶àÏß³Ì
+    for (int y = 0; y < h; y++) { // Ñ­»·±éÀúÍ¼ÏñµÄÃ¿Ò»ĞĞ
+        fprintf(stderr, "\räÖÈ¾ÖĞ... %5.2f%%", 100. * y / (h - 1)); //Êä³ö½ø¶È
         for (unsigned short x = 0, Xi[3] = { 0,0,(unsigned short)(y * y * y) }; x < w; x++)
-            for (int sy = 0, i = (h - y - 1) * w + x; sy < 2; sy++)//2x2å­åƒç´ è¡Œ
-                for (int sx = 0; sx < 2; sx++, r = Vec()) {//2x2å­åƒç´ åˆ—,rç”¨æ¥è®°å½•æœ¬æ¬¡è·å¾—é¢œè‰²å€¼
-                    for (int s = 0; s < samps; s++) {//é‡‡æ ·
-                        /*æ»¤æ³¢å™¨,è®©é‡‡æ ·ä½ç½®åœ¨ä¸­é—´çš„æ¦‚ç‡å¤§,åœ¨å‘¨å›´çš„æ¦‚ç‡å°(â†“)*/
+            for (int sy = 0, i = (h - y - 1) * w + x; sy < 2; sy++) //2x2×ÓÏñËØĞĞ
+                for (int sx = 0; sx < 2; sx++, r = Vec()) { //2x2×ÓÏñËØÁĞ,rÓÃÀ´¼ÇÂ¼±¾´Î»ñµÃÑÕÉ«Öµ
+                    for (int s = 0; s < samps; s++) { //²ÉÑù
+                        /*ÂË²¨Æ÷,ÈÃ²ÉÑùÎ»ÖÃÔÚÖĞ¼äµÄ¸ÅÂÊ´ó,ÔÚÖÜÎ§µÄ¸ÅÂÊĞ¡(¡ı)*/
                         double r1 = 2 * erand48(Xi), dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
-                        /*r1,r2æ˜¯0-2çš„æ•°,æœ‰ä¸€åŠæ¦‚ç‡ç”Ÿæˆsqrt(r) - 1,ä¸€åŠç”Ÿæˆ1 - sqrt(2 - r)*/
+                        /*r1,r2ÊÇ0-2µÄÊı,ÓĞÒ»°ë¸ÅÂÊÉú³Ésqrt(r) - 1,Ò»°ëÉú³É1 - sqrt(2 - r)*/
                         double r2 = 2 * erand48(Xi), dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
-                        //åƒç´ å‘å‡ºå…‰çº¿çš„æ–¹å‘(â†“)
+                        //ÏñËØ·¢³ö¹âÏßµÄ·½Ïò(¡ı)
                         Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) + cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
-                        /* æŠŠæ‘„åƒæœºçš„å…‰çº¿å‘å‰æ¨ä»¥å¼€å§‹åœ¨å†…éƒ¨, cam.o + d * 140æ˜¯å°„çº¿èµ·ç‚¹(ç›¸æœºå’Œå±å¹•ä¹‹é—´çš„è·ç¦»æ˜¯140ä¸ªå•ä½),
-                        * (1. / samps)çš„æ„ä¹‰æ˜¯è®¡ç®—å…‰ç…§è´¡çŒ®çš„å¹³å‡å€¼,å› ä¸ºr = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi)è®¡ç®—çš„æ˜¯
-                        æ‰€æœ‰é‡‡æ ·ç»“æœçš„æ€»å’Œ,å¦åˆ™å…‰çº¿äº®åº¦å¯èƒ½è¿‡å¤§*/
+                        /*
+						°ÑÉãÏñ»úµÄ¹âÏßÏòÇ°ÍÆÒÔ¿ªÊ¼ÔÚÄÚ²¿, cam.o + d * 140ÊÇÉäÏßÆğµã(Ïà»úºÍÆÁÄ»Ö®¼äµÄ¾àÀëÊÇ140¸öµ¥Î»),
+                        * (1. / samps)µÄÒâÒåÊÇ¼ÆËã¹âÕÕ¹±Ï×µÄÆ½¾ùÖµ,ÒòÎªr = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi)¼ÆËãµÄÊÇ
+                        ËùÓĞ²ÉÑù½á¹ûµÄ×ÜºÍ,·ñÔò¹âÏßÁÁ¶È¿ÉÄÜ¹ı´ó
+						*/
                         r = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi) * (1. / samps);
-                        //x,y,ç´¢å¼•,å®½,é«˜,é‡‡æ ·æ¬¡æ•°,å‚¨å­˜å›¾åƒçš„æ•°ç»„,è¿­ä»£æ¬¡æ•°
+                        //x,y,Ë÷Òı,¿í,¸ß,²ÉÑù´ÎÊı,´¢´æÍ¼ÏñµÄÊı×é,µü´ú´ÎÊı
                         DeNoisy(x, y, i, w, h, samps, c, 1);
-                        //x,y,ç´¢å¼•,å®½,é«˜,é‡‡æ ·æ¬¡æ•°,å‚¨å­˜å›¾åƒçš„æ•°ç»„,è¿­ä»£æ¬¡æ•°
+                        //x,y,Ë÷Òı,¿í,¸ß,²ÉÑù´ÎÊı,´¢´æÍ¼ÏñµÄÊı×é,µü´ú´ÎÊı
                         DeNoisy2(x, y, i, w, h, samps, c, 1);
                     }
-                    c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;//å› ä¸ºæ˜¯2*2çš„å­åƒç´ ,æ¯ä¸ªç»“æœåªå 1/4,æ‰€ä»¥ä¹˜0.25
-                    if (c[i - 1].x > 0.95 && c[i - 1].y > 0.95 && c[i - 1].z > 0.95 || c[i - 1].x < 0.05 && c[i - 1].y < 0.05 && c[i - 1].z < 0.05) {//é‡è¦æ€§é‡‡æ ·
+                    c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25; //ÒòÎªÊÇ2*2µÄ×ÓÏñËØ,Ã¿¸ö½á¹ûÖ»Õ¼1/4,ËùÒÔ³Ë0.25
+                    if (c[i - 1].x > 0.95 && c[i - 1].y > 0.95 && c[i - 1].z > 0.95 || c[i - 1].x < 0.05 && c[i - 1].y < 0.05 && c[i - 1].z < 0.05) { //ÖØÒªĞÔ²ÉÑù
                         samps = 1;
-                       //c[i - 1] = Vec(0, 0, 1);//Debug
+                        //c[i - 1] = Vec(0, 0, 1); //Debug
                     }
                     else {
                         samps = samps2;
                     }
                 }
     }
-    FILE* f = fopen("image.ppm", "w");//æ–‡ä»¶å†™å…¥
+
+    FILE* f = fopen("image.ppm", "w"); //ÎÄ¼şĞ´Èë
     fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
     for (int i = 0; i < w * h; i++)
         fprintf(f, "%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
-}//â–“
+    system("pause");
+}
