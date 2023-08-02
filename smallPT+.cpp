@@ -380,7 +380,7 @@ bool js( Vec a,Vec b) {
 }
 
 int main(int argc, char* argv[]) {
-    //omp_set_num_threads(36);
+    // omp_set_num_threads(12);
     int w = 1024 / 2, h = 768 / 2, samps = argc == 2 ? atoi(argv[1]) / 4 : 100, samps2=samps; // 图像大小及采样次数
     Ray cam(Vec(50, 52, 295.6), Vec(0, -0.042612, -1).norm()); // 摄像机位置和方向
     /*cx表示每次横向移动时移动多少,cy表示往下移动时移动多少,r为每次采样时记录的结果,c是用来计算最终图像的数组(↓)*/
@@ -412,7 +412,7 @@ int main(int argc, char* argv[]) {
                     c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25; // 因为是2*2的子像素,每个结果只占1/4,所以乘0.25
                     if (c[i - 1].x > 0.95 && c[i - 1].y > 0.95 && c[i - 1].z > 0.95 || c[i - 1].x < 0.05 && c[i - 1].y < 0.05 && c[i - 1].z < 0.05) { // 重要性采样
                         samps = 1;
-                        // c[i - 1] = Vec(0, 0, 1); //Debug
+                        //c[i - 1] = Vec(0, 0, 1); //Debug
                     }
                     else {
                         samps = samps2;
